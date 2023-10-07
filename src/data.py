@@ -25,6 +25,7 @@ import xarray as xr
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import utils
+from typing import List, Tuple
 
 utils.print_entrypoint(__name__, __file__)
 print('\tInitializing data...')
@@ -136,6 +137,11 @@ MERIDIAN_STEP = 20.
 MERIDIAN_MIN = -180.
 MERIDIAN_MAX = 180.
 PLOTTER_MERIDIANS = np.arange(MERIDIAN_MIN, MERIDIAN_MAX, MERIDIAN_STEP)
+
+coordinate_data = dataset['sea_ice_thickness'].coords
+latitude_data = coordinate_data['lat'].to_numpy()
+longitude_data = coordinate_data['lon'].to_numpy()
+
 class Plotter:
     def __init__(self):
         ax, fig = plt.subplots()
@@ -164,12 +170,17 @@ class Plotter:
 
         self.map = map
 
-    def plot_point(lon: float, lat: float, lon_west=False, c='r', m=','):
+    def plot_point(self, lon: float, lat: float, lon_west=False, c='r', m=','):
         if lon_west:
             x, y = self.map(360. - lon, lat)
         else:
             x, y = self.map(lon, lat)
         self.map.plot(x, y, marker=m, color=c)
+    def plot_path(path: List[Tuple[int]]):
+        for x, y in path:
+            lon = longitude_data[y, x]
+            lat = latitude_data[y, x]
+            self.plot_point(lon, lat)
 
     def save(name: str):
         plt.title(str(name) + " map")
